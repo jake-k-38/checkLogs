@@ -185,7 +185,7 @@ def main():
           print('Run this to check current rules: iptables -L INPUT --line-numbers\n')
           for i in attemptedLoginIPS:
               print('sudo iptables -A INPUT -s', str(i)[2:-2], '-j DROP') #[2:-2] removes the brackets []
-              print('sudo ufw deny from', str(i)[2:-2])
+              #print('sudo ufw deny from', str(i)[2:-2]) #uncomment if using UFW
           print('')
   print('Finished @' + ' ' + now.strftime('%Y-%m-%d %H:%M:%S'))
 
