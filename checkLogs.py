@@ -11,22 +11,6 @@ flags = ['Failed password for',                  # SSH failed login
          'Access denied for user',
          ]
 
-#**************************/////////////////////////
-#**************************MAY HAVE FALSE POSITIVES**
-#****************************************************
-
-logNetstatTrafficToAnalyze = False
-
-
-netFlags = ['nc', #Could have some false positives
-        'bash',
-        'perl',
-        'python',
-        'php',
-        'ruby',
-        'java',
-        'javaw']
-
 # extension names for compressed log file to avoid
 fileexts = ['.tar.gz', '.bz2', '.zip', '.gz']
 
@@ -38,7 +22,6 @@ rawOutput = False
 
 logfile = []
 logFolders = []
-netInfo = []
 info = []
 sudoFailed = []
 rawLoginAttempts = []
@@ -70,12 +53,6 @@ def isSecurityLog(name): #Add any log files you want to check, make sure the key
     else:
         return False
 
-def isSecurityLogFolder(name): #Add any log folders you want to check, make sure the keyword flag is set for specific log format
-    if 'netstat' in name:
-        return True
-    else:
-        return False
-
 def check_extension(name): #Make sure the log files are not compressed
     for ext in fileexts:
         if name.endswith(ext):
@@ -95,38 +72,6 @@ def main():
   print('Starting scan @: ' + now.strftime('%Y-%m-%d %H:%M:%S'))
   print('')
   print('')
-
-  if(logNetstatTrafficToAnalyze):
-    try:
-        os.mkdir('/var/log/netstat')
-    except OSError as error:
-        print(error)
-    command = os.popen('lsof -Pnl +M -i4 | tee -a /var/log/netstat/netstatLog.`date +"%m-%d-%Y"` > /dev/null')
-    print(command.read())
-    print(command.close())
-    print('***REVERSE SHELL DETECTION ENABLED, EXPECT FALSE POSITIVES***')
-    for file in os.listdir('/var/log'):
-      logfiledir = os.path.join('/var/log', file)
-      if check_extension(logfiledir) and os.path.isdir(logfiledir) and (not '-' in logfiledir):
-        if isSecurityLogFolder(logfiledir):
-          for x in os.listdir(logfiledir):
-            logFolders.append(logfiledir + '/' + x)
-    for logs in logFolders: #loop through any folders of logs you want
-        netInfo = []
-        print(bordered('Now Scanning.... ' + logs))
-        print('')
-        with open(logs) as x: #make a loop through all the files in directory
-            x = x.readlines()
-            for line in x:
-              for key in netFlags:
-                if key in line:
-                  netInfo.append(line)
-                  print(line)
-                  break
-  else:
-    print('Logging netstat traffic is disabled, not checking for reverse shells.')
-    print('')
-
   print('')
   print('Scanning through these log files: ')
   print('')
